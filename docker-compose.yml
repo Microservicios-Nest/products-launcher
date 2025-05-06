@@ -52,3 +52,20 @@ services:
       - 5432:5432
     volumes:
       - ./orders-ms/postgres:/var/lib/postgresql/data
+
+  payments-ms:
+    container_name: payments-ms
+    build: ./payments-ms
+    image: payments-ms:latest
+    volumes:
+      - ./payments-ms/src:/usr/src/app/src
+    command: npm run start:dev
+    ports:
+      - 3003:3003
+    environment:
+      - PORT=3003
+      - STRIPE_SECRET_KEY=sk_test_51RJOy1CmkykLIRm2KZlfQUOfPEOHBFYGaDwo8zgRDFSGnO8xSwZbnDDO8PLThstgcsiOd1fCCznGbJXAwxBreKlB00gLITZFhO
+      - STRIPER_WEBHOOK_SECRET=whsec_jVTyRUk1gQkx84HuO44NKt5shey6OC7p
+      - STRIPE_SUCCESS_URL=http://localhost:3003/api/payments/success
+      - STRIPE_CANCEL_URL=http://localhost:3003/api/payments/cancel
+      - NATS_SERVERS=nats://nats-server:4222
