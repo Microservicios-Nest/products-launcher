@@ -8,13 +8,13 @@ services:
     image: client-gateway:latest
     build: ./client-gateway
     ports:
-      - 3000:3000
+      - ${CLIENT_GATEWAY_PORT}:${CLIENT_GATEWAY_PORT}
     volumes:
       - ./client-gateway/src:/usr/src/app/src
     command: npm run start:dev
     environment:
       - PORT=3000
-      - NATS_SERVERS=nats://nats-server:4222
+      - NATS_SERVERS=${NATS_SERVER_URL}
 
   products-ms:
     build: ./products-ms
@@ -24,7 +24,7 @@ services:
     command: npm run start:dev
     environment:
       - PORT=3001
-      - NATS_SERVERS=nats://nats-server:4222
+      - NATS_SERVERS=${NATS_SERVER_URL}
       - DATABASE_URL=file:./dev.db
 
   orders-ms:
@@ -35,8 +35,8 @@ services:
     command: npm run start:dev
     environment:
       - PORT=3002
-      - NATS_SERVERS=nats://nats-server:4222
-      - DATABASE_URL=postgresql://postgres:123456@orders-ms-db:5432/orders?schema=public
+      - NATS_SERVERS=${NATS_SERVER_URL}
+      - DATABASE_URL=${ORDERS_MS_DB_URL}
     depends_on:
       - orders-ms-db
 
@@ -45,11 +45,11 @@ services:
     container_name: orders-db
     restart: always
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 123456
-      POSTGRES_DB: orders
+      POSTGRES_USER: ${ORDERS_MS_DB_USER}
+      POSTGRES_PASSWORD: ${ORDERS_MS_DB_PASSWORD}
+      POSTGRES_DB: ${ORDERS_MS_DB}
     ports:
-      - 5432:5432
+      - ${ORDERS_MS_DB_PORT}:${ORDERS_MS_DB_PORT}
     volumes:
       - ./orders-ms/postgres:/var/lib/postgresql/data
 
@@ -64,8 +64,8 @@ services:
       - ${PAYMENTS_MS_PORT}:${PAYMENTS_MS_PORT}
     environment:
       - PORT=${PAYMENTS_MS_PORT}
-      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
-      - STRIPER_WEBHOOK_SECRET=${STRIPER_WEBHOOK_SECRET}
-      - STRIPE_SUCCESS_URL=http://localhost:3003/api/payments/success
-      - STRIPE_CANCEL_URL=http://localhost:3003/api/payments/cancel
-      - NATS_SERVERS=nats://nats-server:4222
+      - STRIPE_SECRET_KEY=${PAYMENTS_MS_STRIPE_SECRET}
+      - STRIPER_WEBHOOK_SECRET=${PAYMENTS_MS_STRIPE_WEBHOOK_SECRET}
+      - STRIPE_SUCCESS_URL=${PAYMENTS_MS_STRIPE_SUCCESS_URL}
+      - STRIPE_CANCEL_URL=${PAYMENTS_MS_STRIPE_CANCEL_URL}
+      - NATS_SERVERS=nats:${NATS_SERVER_URL}
