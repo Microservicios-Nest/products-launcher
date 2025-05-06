@@ -61,11 +61,11 @@ services:
       - ./payments-ms/src:/usr/src/app/src
     command: npm run start:dev
     ports:
-      - 3003:3003
+      - ${PAYMENTS_MS_PORT}:${PAYMENTS_MS_PORT}
     environment:
-      - PORT=3003
-      - STRIPE_SECRET_KEY=sk_test_51RJOy1CmkykLIRm2KZlfQUOfPEOHBFYGaDwo8zgRDFSGnO8xSwZbnDDO8PLThstgcsiOd1fCCznGbJXAwxBreKlB00gLITZFhO
-      - STRIPER_WEBHOOK_SECRET=whsec_jVTyRUk1gQkx84HuO44NKt5shey6OC7p
+      - PORT=${PAYMENTS_MS_PORT}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - STRIPER_WEBHOOK_SECRET=${STRIPER_WEBHOOK_SECRET}
       - STRIPE_SUCCESS_URL=http://localhost:3003/api/payments/success
       - STRIPE_CANCEL_URL=http://localhost:3003/api/payments/cancel
       - NATS_SERVERS=nats://nats-server:4222
