@@ -1,10 +1,12 @@
 services:
   nats-server:
+    container_name: nats-server
     image: nats:latest
     ports:
       - 8222:8222
 
   client-gateway:
+    container_name: client-gateway
     image: client-gateway:latest
     build: ./client-gateway
     ports:
@@ -17,6 +19,7 @@ services:
       - NATS_SERVERS=${NATS_SERVER_URL}
 
   products-ms:
+    container_name: products-ms
     build: ./products-ms
     image: products-ms:latest
     volumes:
@@ -28,6 +31,7 @@ services:
       - DATABASE_URL=file:./dev.db
 
   orders-ms:
+    container_name: orders-ms
     build: ./orders-ms
     image: orders-ms:latest
     volumes:
@@ -41,8 +45,8 @@ services:
       - orders-ms-db
 
   orders-ms-db:
-    image: postgres:16.2
     container_name: orders-db
+    image: postgres:16.2
     restart: always
     environment:
       POSTGRES_USER: ${ORDERS_MS_DB_USER}
@@ -69,3 +73,16 @@ services:
       - STRIPE_SUCCESS_URL=${PAYMENTS_MS_STRIPE_SUCCESS_URL}
       - STRIPE_CANCEL_URL=${PAYMENTS_MS_STRIPE_CANCEL_URL}
       - NATS_SERVERS=nats:${NATS_SERVER_URL}
+
+  auth-ms:
+    container_name: auth-ms
+    image: auth-ms:latest
+    build: ./auth-ms
+    volumes:
+      - ./auth-ms/src:/usr/src/app/src
+    command: npm run start:dev
+    environment:
+      - PORT=3004
+      - NATS_SERVERS=nats:${NATS_SERVER_URL}
+      - DATABASE_URL=${AUTH_MS_DB_URL}
+      - JWT_SECRET=${AUTH_MS_JWT_SECRET}
